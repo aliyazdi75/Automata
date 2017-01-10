@@ -3,30 +3,24 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * Automata Created by AliYazdi75 on Jan_2017
  */
-public class UI {
+public class UI extends JFrame {
 
     public static int size;
-    private static JFrame frmGetSize, frmGetTable;
-    private static JTable stateTable;
     private JButton btnEnter;
     private static JTextField txtSize;
 
-    public void frmGetSize() {
+    public UI() {
 
-        frmGetSize = new JFrame("Automata");
-        frmGetSize.setLayout(null);
-        frmGetSize.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frmGetSize.setResizable(false);
-        frmGetSize.setLocationRelativeTo(null);
-        frmGetSize.setVisible(true);
+        super("Automata");
+        setLayout(null);
+        setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+        setResizable(false);
         JPanel pnlCmpt = new JPanel(null);
 
         Font font1 = new Font("", Font.PLAIN, 30);
@@ -41,23 +35,22 @@ public class UI {
         txtSize.setBounds(0, 100, 100, 50);
         pnlCmpt.add(txtSize);
 
-        btnEnter = new JButton();
+        btnEnter = new JButton("Enter");
         btnEnter.setSize(85, 50);
-        btnEnter.setText("Enter");
         font1 = new Font("", Font.PLAIN, 30);
         btnEnter.setFont(font1);
         btnEnter.setBounds(130, 100, 180, 50);
         pnlCmpt.add(btnEnter);
 
-        pnlCmpt.setBounds(30, 30, 380, 300);
-        frmGetSize.add(pnlCmpt);
-        frmGetSize.setBackground(Color.LIGHT_GRAY);
-        frmGetSize.setSize(380, 300);
+        pnlCmpt.setBounds(30, 30, 330, 250);
+        add(pnlCmpt);
+        setBackground(Color.LIGHT_GRAY);
+        setSize(380, 300);
 
         btnEnter.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                getSize();
+                checkSize();
             }
 
         });
@@ -65,55 +58,33 @@ public class UI {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    getSize();
+                    checkSize();
                 }
             }
         });
 
     }
 
-    public void frmGetTable() {
 
-        frmGetTable = new JFrame("Automata");
-        frmGetTable.setLayout(null);
-        frmGetTable.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frmGetTable.setResizable(false);
-        frmGetTable.setLocationRelativeTo(null);
-        frmGetTable.setVisible(true);
-        JPanel pnlCmpt = new JPanel(null);
-
-        ArrayList<Objects> columnNames =new ArrayList();
-        columnNames.add("State");
-        for(int i=1;i<=size;i++)
-            columnNames.add(Integer.toString(i));
-        ArrayList<Objects> rowNames =new ArrayList();
-        for(int i=1;i<=size;i++)
-            rowNames.add(i);
-        stateTable.add(rowNames,columnNames);
-
-        stateTable.setBounds(0, 0, 550, 300);
-        pnlCmpt.add(stateTable);
-
-        pnlCmpt.setBounds(30, 30, 550, 300);
-        frmGetSize.add(pnlCmpt);
-        frmGetSize.setBackground(Color.LIGHT_GRAY);
-        frmGetSize.setSize(550, 300);
-
-    }
-
-    private void getSize() {
+    private void checkSize() {
         String s = txtSize.getText();
         Pattern pattern = Pattern.compile("[^0-9]");
         Matcher matcher = pattern.matcher(s);
         s = matcher.replaceAll("");
         if (!s.equals("")) {
             size = Integer.parseInt(s);
-            frmGetSize.dispose();
-            frmGetTable();
+            //frmGetSize.setVisible(false);
+            GetTable getTable=new GetTable();
+            getTable.pack();
+            getTable.setSize(1000, 1000);
+            getTable.setLocationRelativeTo(null);
+            getTable.setVisible(true);
         } else {
             JOptionPane.showMessageDialog(new JFrame(), "First enter correct size!"
                     , "Error!", JOptionPane.ERROR_MESSAGE);
             txtSize.setText("");
         }
     }
+
+
 }
