@@ -1,5 +1,4 @@
 import javax.swing.*;
-import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
@@ -20,23 +19,25 @@ public class GetTable extends JFrame {
         setResizable(true);
         JPanel pnlCmpt = new JPanel(null);
 
-        TableColumn[] columnNames = new TableColumn[UI.size+1];
-        columnNames[0]="State";
-        for(int i=1;i<=UI.size;i++)
-            columnNames[i]=Integer.toString(i);
+        Object[] columnNames = new Object[UI.size + 1];
+        columnNames[0] = "State";
+        for (int i = 1; i <= UI.size; i++)
+            columnNames[i] = Integer.toString(i);
 
-        Object[][] rowNames = new Object[UI.size][UI.size];
-        rowNames[0][]=columnNames[];
-        for(int i=0;i<UI.size;i++)
-            rowNames[i][0]=Integer.toString(i+1);
+        Object[][] rowNames = new Object[UI.size][UI.size + 1];
+        for (int i = 0; i < UI.size; i++) {
+            rowNames[i][0] = Integer.toString(i + 1);
+            for (int j = 1; j <= UI.size; j++)
+                rowNames[i][j] = "";
+        }
 
-        stateTable=new JTable(UI.size+1,UI.size+1);
-        stateTable.addColumn(columnNames);
-        stateTable.setRowMargin(UI.size+1);
-
-        new JScrollPane(stateTable);
-        stateTable.setBounds(0, 0, 907, 780);
-        pnlCmpt.add(stateTable);
+        stateTable = new JTable(rowNames, columnNames);
+        JScrollPane scrollPane = new JScrollPane(stateTable);
+        if (UI.size > 15)
+            stateTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        stateTable.setSize(907, 780);
+        scrollPane.setBounds(0, 0, 907, 780);
+        pnlCmpt.add(scrollPane);
 
         btnDone = new JButton("Enter");
         btnDone.setSize(85, 50);
@@ -59,7 +60,4 @@ public class GetTable extends JFrame {
 
     }
 
-    public void run(){
-       // frmGetTable();
-    }
 }
