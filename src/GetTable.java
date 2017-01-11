@@ -1,3 +1,6 @@
+
+
+import GraphViz.GraphDrawer;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -53,7 +56,9 @@ public class GetTable extends JFrame {
         btnDone.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                String graphStr = "Hello->World";
+                GraphDrawer gd = new GraphDrawer();
+                gd.draw("test.",graphStr);
             }
 
         });
