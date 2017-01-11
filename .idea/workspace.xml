@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="13c2c364-6869-4f4b-8c1e-423c68d866f7" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/GetTable.java" afterPath="$PROJECT_DIR$/src/GetTable.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -925,12 +924,20 @@
       <workItem from="1484035542999" duration="24967000" />
       <workItem from="1484115877720" duration="5205000" />
       <workItem from="1484141770414" duration="98000" />
-      <workItem from="1484143364894" duration="376000" />
+      <workItem from="1484143364894" duration="429000" />
     </task>
+    <task id="LOCAL-00001" summary="add drawing graph function">
+      <created>1484166826029</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1484166826029</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="46114000" />
+    <option name="totallyTimeSpent" value="46167000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -1002,7 +1009,8 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <option name="LAST_COMMIT_MESSAGE" value="" />
+    <MESSAGE value="add drawing graph function" />
+    <option name="LAST_COMMIT_MESSAGE" value="add drawing graph function" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
