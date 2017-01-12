@@ -1,18 +1,21 @@
-
-
 import GraphViz.GraphDrawer;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Automata Created by AliYazdi75 on Jan_2017
  */
 public class GetTable extends JFrame {
 
+    private static ArrayList<Vertex> stateGraph = new ArrayList<>();
     private static JTable stateTable;
     private JButton btnDone;
-
 
     public GetTable() {
 
@@ -53,16 +56,62 @@ public class GetTable extends JFrame {
         add(pnlCmpt);
         setBackground(Color.LIGHT_GRAY);
 
+        /*String graphStr = "Hello->World";
+        GraphDrawer gd = new GraphDrawer();
+        gd.draw("test.", graphStr);*/
         btnDone.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String graphStr = "Hello->World";
-                GraphDrawer gd = new GraphDrawer();
-                gd.draw("test.",graphStr);
+                state();
+                drawGraph();
             }
-
         });
 
+    }
+
+    private void state() {
+
+        for (int i = 0; i < UI.size; i++) {
+            stateGraph.add(new Vertex());
+        }
+        for (int i = 0; i < UI.size; i++) {
+            Vertex newNode = stateGraph.get(i);
+            newNode.edges = new ArrayList<>();
+            newNode.key = i + 1;
+            for (int j = 1; j <= UI.size; j++) {
+                Object obj = stateTable.getValueAt(i, j);
+                Pattern pattern = Pattern.compile("[^a-z A-Z]");
+                String st = Objects.toString(obj);
+                Matcher matcher = pattern.matcher(st);
+                st = matcher.replaceAll("");
+                st = st.toLowerCase();
+                if (st.equals(""))
+                    continue;
+
+                char[] charEdges = st.toCharArray();
+                for (char c : charEdges) {
+                    Edges newEdge = new Edges();
+                    newEdge.key = c;
+                    newEdge.dst = stateGraph.get(j - 1);
+                    newNode.edges.add(newEdge);
+                }
+            }
+        }
+    }
+
+    private void drawGraph() {
+
+        String graphStr = "rankdir=LR;\n";
+        graphStr += "size=\"8,5\"\n";
+        graphStr += "node [shape = doublecircle]; 1\n";
+        graphStr += "node [shape = circle];\n";
+        for (Vertex v : stateGraph) {
+            for (Edges e : v.edges) {
+                graphStr += v.key + " -> " + e.dst.key + " [ label = \"" + e.key + "\" ];\n";
+            }
+        }
+        GraphDrawer gd = new GraphDrawer();
+        gd.draw("Graph_Whit_Circles.", graphStr);
     }
 
 }
