@@ -19,7 +19,7 @@ public class UI extends JFrame {
 
         super("Automata");
         setLayout(null);
-        setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
         JPanel pnlCmpt = new JPanel(null);
 
@@ -73,10 +73,10 @@ public class UI extends JFrame {
         s = matcher.replaceAll("");
         if (!s.equals("")) {
             size = Integer.parseInt(s);
-            //frmGetSize.setVisible(false);
+
+            setVisible(false);
             GetTable getTable=new GetTable();
             getTable.pack();
-            getTable.setSize(1000, 1000);
             getTable.setLocationRelativeTo(null);
             getTable.setVisible(true);
         } else {

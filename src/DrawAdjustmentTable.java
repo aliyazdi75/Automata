@@ -1,5 +1,3 @@
-import GraphViz.GraphDrawer;
-
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -11,33 +9,26 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Automata Created by AliYazdi75 on Jan_2017
  */
-public class GetTable extends JFrame {
+public class DrawAdjustmentTable extends JFrame {
 
-    public static ArrayList<Vertex> stateGraph = new ArrayList<>();
     private JScrollPane scrollPane;
     private JTable stateTable;
     private DefaultTableModel model;
     private TableRowSorter<TableModel> sorter;
     private JTable headerTable;
 
-    public GetTable() {
+    public DrawAdjustmentTable() {
 
-        super("Get Data");
+        super("Adjustment Table");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        stateTable = new JTable(UI.size, UI.size);
+        stateTable = new JTable(UI.size, 1);
 
-        for (int i = 0; i < stateTable.getRowCount(); i++) {
-            stateTable.getColumnModel().getColumn(i).setHeaderValue(i);
-        }
+        stateTable.getColumnModel().getColumn(0).setHeaderValue("Adjustment");
 
         sorter = new TableRowSorter<>(stateTable.getModel());
         stateTable.setRowSorter(sorter);
@@ -113,6 +104,13 @@ public class GetTable extends JFrame {
             }
         });
 
+        for (int i = 0; i < stateTable.getRowCount(); i++) {
+            String st = "";
+            for (Edges e : GetTable.stateGraph.get(i).edges)
+                st += "(" + e.dst.key + "," + e.key + ") ";
+            stateTable.setValueAt(st, i, 0);
+        }
+
         scrollPane = new JScrollPane(stateTable);
         scrollPane.setRowHeaderView(headerTable);
         stateTable.setPreferredScrollableViewportSize(stateTable.getPreferredSize());
@@ -120,68 +118,15 @@ public class GetTable extends JFrame {
         add(scrollPane);
         setBackground(Color.LIGHT_GRAY);
 
-        add(new JButton(new AbstractAction("Enter") {
+        add(new JButton(new AbstractAction("Check Path") {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                state();
-                drawGraph();
-                //find circles
-                //open file
-                setVisible(false);
-                DrawAdjustmentTable drawAdjustmentTable = new DrawAdjustmentTable();
-                drawAdjustmentTable.pack();
-                drawAdjustmentTable.setLocationRelativeTo(null);
-                drawAdjustmentTable.setVisible(true);
-                //
+
             }
         }), BorderLayout.SOUTH);
 
-    }
 
-    private void state() {
-
-        for (int i = 0; i < UI.size; i++) {
-            stateGraph.add(new Vertex());
-        }
-        for (int i = 0; i < UI.size; i++) {
-            Vertex newNode = stateGraph.get(i);
-            newNode.edges = new ArrayList<>();
-            newNode.key = i;
-            for (int j = 0; j < UI.size; j++) {
-                Object obj = stateTable.getValueAt(i, j);
-                Pattern pattern = Pattern.compile("[^a-z A-Z]");
-                String st = Objects.toString(obj);
-                Matcher matcher = pattern.matcher(st);
-                st = matcher.replaceAll("");
-                st = st.toLowerCase();
-                if (st.equals("") || st.equals("null"))
-                    continue;
-
-                char[] charEdges = st.toCharArray();
-                for (char c : charEdges) {
-                    Edges newEdge = new Edges();
-                    newEdge.key = c;
-                    newEdge.dst = stateGraph.get(j);
-                    newNode.edges.add(newEdge);
-                }
-            }
-        }
-    }
-
-    private void drawGraph() {
-
-        String graphStr = "rankdir=LR;\n";
-        graphStr += "size=\"8,5\"\n";
-        graphStr += "node [shape = doublecircle]; 0\n";
-        graphStr += "node [shape = circle];\n";
-        for (Vertex v : stateGraph) {
-            for (Edges e : v.edges) {
-                graphStr += v.key + " -> " + e.dst.key + " [ label = \"" + e.key + "\" ];\n";
-            }
-        }
-        GraphDrawer gd = new GraphDrawer();
-        gd.draw("Graph_With_Circles.", graphStr);
     }
 
 }
