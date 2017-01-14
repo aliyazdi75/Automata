@@ -1,16 +1,12 @@
 import GraphViz.GraphDrawer;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.RowSorterEvent;
-import javax.swing.event.RowSorterListener;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
+import javax.swing.event.*;
+import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -33,15 +29,113 @@ public class GetTable extends JFrame {
         super("Get Data");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        stateTable = new JTable(UI.size, UI.size + 2);
+        DefaultTableModel dm = new DefaultTableModel();
+        dm.setRowCount(UI.size);
 
-        for (int i = 0; i < stateTable.getRowCount(); i++) {
-            stateTable.getColumnModel().getColumn(i).setHeaderValue(i);
+        Object[] columnNum = new Object[UI.size + 2];
+        for (int i = 0; i < UI.size; i++) {
+            columnNum[i] = i;
         }
-        stateTable.getColumnModel().getColumn(UI.size).setHeaderValue("Start");
-        stateTable.getColumnModel().getColumn(UI.size + 1).setHeaderValue("Final");
+        columnNum[UI.size] = "Start";
+        columnNum[UI.size + 1] = "Finals";
+        Object[][] rdBtnStart = new Object[UI.size][UI.size + 2];
+        for (int i = 0; i < UI.size; i++) {
+            rdBtnStart[i][UI.size] = new JRadioButton();
+        }
+        for (int i = 0; i < UI.size; i++) {
+            rdBtnStart[i][UI.size + 1] = new JCheckBox();
+        }
+        dm.setDataVector(rdBtnStart,columnNum);
 
-        Objects[] radioBtn = new Objects[UI.size];
+        ButtonGroup rdGrp = new ButtonGroup();
+        for(int i=0;i<UI.size;i++){
+            rdGrp.add((JRadioButton) dm.getValueAt(i, UI.size));
+        }
+
+        stateTable = new JTable(dm){
+            public void tableChanged(TableModelEvent e) {
+                super.tableChanged(e);
+                repaint();
+            }
+        };
+
+        class RadioButtonRenderer implements TableCellRenderer {
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus, int row, int column) {
+                if (value == null)
+                    return null;
+                return (Component) value;
+            }
+        }
+        class CheckBoxRenderer implements TableCellRenderer {
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus, int row, int column) {
+                if (value == null)
+                    return null;
+                return (Component) value;
+            }
+        }
+        class RadioButtonEditor extends DefaultCellEditor implements ItemListener {
+            private JRadioButton button;
+
+            public RadioButtonEditor(JCheckBox checkBox) {
+                super(checkBox);
+            }
+
+            public Component getTableCellEditorComponent(JTable table, Object value,
+                                                         boolean isSelected, int row, int column) {
+                if (value == null)
+                    return null;
+                button = (JRadioButton) value;
+                button.addItemListener(this);
+                return (Component) value;
+            }
+
+            public Object getCellEditorValue() {
+                button.removeItemListener(this);
+                return button;
+            }
+
+            public void itemStateChanged(ItemEvent e) {
+                super.fireEditingStopped();
+            }
+        }
+        class CheckBoxEditor extends DefaultCellEditor implements ItemListener {
+            private JCheckBox box;
+
+            public CheckBoxEditor(JCheckBox checkBox) {
+                super(checkBox);
+            }
+
+            public Component getTableCellEditorComponent(JTable table, Object value,
+                                                         boolean isSelected, int row, int column) {
+                if (value == null)
+                    return null;
+                box = (JCheckBox) value;
+                box.addItemListener(this);
+                return (Component) value;
+            }
+
+            public Object getCellEditorValue() {
+                box.removeItemListener(this);
+                return box;
+            }
+
+            public void itemStateChanged(ItemEvent e) {
+                super.fireEditingStopped();
+            }
+        }
+
+        stateTable.getColumn("Start").setCellRenderer(
+                new RadioButtonRenderer());
+        stateTable.getColumn("Start").setCellEditor(
+                new RadioButtonEditor(new JCheckBox()));
+        stateTable.getColumn("Finals").setCellRenderer(
+                new CheckBoxRenderer());
+        stateTable.getColumn("Finals").setCellEditor(
+                new CheckBoxEditor(new JCheckBox()));
+
+
         for (int i = 0; i < stateTable.getRowCount(); i++) {
             stateTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         }
@@ -122,6 +216,7 @@ public class GetTable extends JFrame {
 
         scrollPane = new JScrollPane(stateTable);
         scrollPane.setRowHeaderView(headerTable);
+
         stateTable.setPreferredScrollableViewportSize(stateTable.getPreferredSize());
 
         add(scrollPane);
@@ -139,12 +234,12 @@ public class GetTable extends JFrame {
                 drawGraph(true);
                 //open file
                 dispose();
-                //setEditable -> False
-                //Again
                 DrawAdjustmentTable drawAdjustmentTable = new DrawAdjustmentTable();
                 drawAdjustmentTable.pack();
                 drawAdjustmentTable.setLocationRelativeTo(null);
                 drawAdjustmentTable.setVisible(true);
+                //setEditable -> False
+                //Again
                 //
             }
         }), BorderLayout.SOUTH);
