@@ -13,8 +13,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Automata Created by AliYazdi75 on Jan_2017
@@ -22,6 +20,8 @@ import java.util.regex.Pattern;
 public class GetTable extends JFrame {
 
     public static ArrayList<Vertex> stateGraph = new ArrayList<>();
+    private Vertex lastVertex;
+    private int lastEdges;
     private JScrollPane scrollPane;
     private JTable stateTable;
     private DefaultTableModel model;
@@ -33,10 +33,17 @@ public class GetTable extends JFrame {
         super("Get Data");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        stateTable = new JTable(UI.size, UI.size);
+        stateTable = new JTable(UI.size, UI.size + 2);
 
         for (int i = 0; i < stateTable.getRowCount(); i++) {
             stateTable.getColumnModel().getColumn(i).setHeaderValue(i);
+        }
+        stateTable.getColumnModel().getColumn(UI.size).setHeaderValue("Start");
+        stateTable.getColumnModel().getColumn(UI.size + 1).setHeaderValue("Final");
+
+        Objects[] radioBtn = new Objects[UI.size];
+        for (int i = 0; i < stateTable.getRowCount(); i++) {
+            stateTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         }
 
         sorter = new TableRowSorter<>(stateTable.getModel());
@@ -124,11 +131,16 @@ public class GetTable extends JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                //main jFrame with layout
                 state();
-                drawGraph();
-                //find circles
+                drawGraph(false);
+                for (Vertex vertex : stateGraph)
+                    findCircles(vertex);
+                drawGraph(true);
                 //open file
-                setVisible(false);
+                dispose();
+                //setEditable -> False
+                //Again
                 DrawAdjustmentTable drawAdjustmentTable = new DrawAdjustmentTable();
                 drawAdjustmentTable.pack();
                 drawAdjustmentTable.setLocationRelativeTo(null);
@@ -150,10 +162,8 @@ public class GetTable extends JFrame {
             newNode.key = i;
             for (int j = 0; j < UI.size; j++) {
                 Object obj = stateTable.getValueAt(i, j);
-                Pattern pattern = Pattern.compile("[^a-z A-Z]");
                 String st = Objects.toString(obj);
-                Matcher matcher = pattern.matcher(st);
-                st = matcher.replaceAll("");
+                st = st.replaceAll(",", "");
                 st = st.toLowerCase();
                 if (st.equals("") || st.equals("null"))
                     continue;
@@ -169,8 +179,23 @@ public class GetTable extends JFrame {
         }
     }
 
-    private void drawGraph() {
+    private void findCircles(Vertex vertex) {
 
+        if (vertex.visited) {
+            if (lastVertex.edges.size() > 0) {
+                lastVertex.edges.remove(lastEdges);
+                lastEdges--;
+            }
+        } else {
+            vertex.visited = true;
+            lastVertex = vertex;
+            for (lastEdges = 0; lastEdges < vertex.edges.size(); lastEdges++) {
+                findCircles(vertex.edges.get(lastEdges).dst);
+            }
+        }
+    }
+
+    private void drawGraph(Boolean withoutCircle) {
         String graphStr = "rankdir=LR;\n";
         graphStr += "size=\"8,5\"\n";
         graphStr += "node [shape = doublecircle]; 0\n";
@@ -181,7 +206,10 @@ public class GetTable extends JFrame {
             }
         }
         GraphDrawer gd = new GraphDrawer();
-        gd.draw("Graph_With_Circles.", graphStr);
+        if (withoutCircle)
+            gd.draw("Graph_Without_Circles.", graphStr);
+        else
+            gd.draw("Graph_With_Circles.", graphStr);
     }
 
 }

@@ -6,4 +6,5 @@ import java.util.ArrayList;
 public class Vertex {
     int key;
     ArrayList<Edges> edges;
+    Boolean visited=false;
 }

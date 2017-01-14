@@ -74,7 +74,7 @@ public class UI extends JFrame {
         if (!s.equals("")) {
             size = Integer.parseInt(s);
 
-            setVisible(false);
+            dispose();
             GetTable getTable=new GetTable();
             getTable.pack();
             getTable.setLocationRelativeTo(null);

@@ -115,7 +115,7 @@ public class DrawAdjustmentTable extends JFrame {
         scrollPane.setRowHeaderView(headerTable);
         stateTable.setPreferredScrollableViewportSize(stateTable.getPreferredSize());
 
-        add(scrollPane);
+        add(scrollPane,BorderLayout.NORTH);
         setBackground(Color.LIGHT_GRAY);
 
         add(new JButton(new AbstractAction("Check Path") {
@@ -124,8 +124,15 @@ public class DrawAdjustmentTable extends JFrame {
             public void actionPerformed(ActionEvent e) {
 
             }
-        }), BorderLayout.SOUTH);
+        }), BorderLayout.CENTER);
 
+        add(new JButton(new AbstractAction("Again") {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        }), BorderLayout.SOUTH);
 
     }
 
