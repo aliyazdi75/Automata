@@ -7,4 +7,6 @@ public class Vertex {
     int key;
     ArrayList<Edges> edges;
     Boolean visited=false;
+    Boolean start=false;
+    Boolean finals=false;
 }

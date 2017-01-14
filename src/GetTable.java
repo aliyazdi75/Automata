@@ -16,6 +16,8 @@ import java.util.Objects;
 public class GetTable extends JFrame {
 
     public static ArrayList<Vertex> stateGraph = new ArrayList<>();
+    private JRadioButton[] rdBtn = new JRadioButton[UI.size];
+    private JCheckBox[] chkBox = new JCheckBox[UI.size];
     private Vertex lastVertex;
     private int lastEdges;
     private JScrollPane scrollPane;
@@ -31,6 +33,7 @@ public class GetTable extends JFrame {
 
         DefaultTableModel dm = new DefaultTableModel();
         dm.setRowCount(UI.size);
+        dm.setColumnCount(UI.size + 2);
 
         Object[] columnNum = new Object[UI.size + 2];
         for (int i = 0; i < UI.size; i++) {
@@ -38,21 +41,22 @@ public class GetTable extends JFrame {
         }
         columnNum[UI.size] = "Start";
         columnNum[UI.size + 1] = "Finals";
-        Object[][] rdBtnStart = new Object[UI.size][UI.size + 2];
+        dm.setColumnIdentifiers(columnNum);
         for (int i = 0; i < UI.size; i++) {
-            rdBtnStart[i][UI.size] = new JRadioButton();
+            rdBtn[i] = new JRadioButton();
+            dm.setValueAt(rdBtn[i], i, UI.size);
         }
         for (int i = 0; i < UI.size; i++) {
-            rdBtnStart[i][UI.size + 1] = new JCheckBox();
+            chkBox[i] = new JCheckBox();
+            dm.setValueAt(chkBox[i], i, UI.size + 1);
         }
-        dm.setDataVector(rdBtnStart,columnNum);
 
         ButtonGroup rdGrp = new ButtonGroup();
-        for(int i=0;i<UI.size;i++){
+        for (int i = 0; i < UI.size; i++) {
             rdGrp.add((JRadioButton) dm.getValueAt(i, UI.size));
         }
 
-        stateTable = new JTable(dm){
+        stateTable = new JTable(dm) {
             public void tableChanged(TableModelEvent e) {
                 super.tableChanged(e);
                 repaint();
@@ -231,6 +235,8 @@ public class GetTable extends JFrame {
                 drawGraph(false);
                 for (Vertex vertex : stateGraph)
                     findCircles(vertex);
+                for (Vertex vertex : stateGraph)
+                    vertex.visited = false;
                 drawGraph(true);
                 //open file
                 dispose();
@@ -271,6 +277,16 @@ public class GetTable extends JFrame {
                     newNode.edges.add(newEdge);
                 }
             }
+            JRadioButton button = new JRadioButton();
+            button.setSelected(true);
+            JCheckBox box = new JCheckBox();
+            box.setSelected(true);
+            if (rdBtn[i].isSelected()) {
+                newNode.start = true;
+            }
+            if (chkBox[i].isSelected()) {
+                newNode.finals = true;
+            }
         }
     }
 
@@ -293,11 +309,28 @@ public class GetTable extends JFrame {
     private void drawGraph(Boolean withoutCircle) {
         String graphStr = "rankdir=LR;\n";
         graphStr += "size=\"8,5\"\n";
-        graphStr += "node [shape = doublecircle]; 0\n";
-        graphStr += "node [shape = circle];\n";
+        graphStr += "node [shape = doublecircle]; ";
+        for (Vertex v : stateGraph) {
+            if (v.finals || v.start)
+                if (v.start)
+                    graphStr += "Start_"+v.key + " ";
+                else
+                    graphStr += v.key + " ";
+        }
+        graphStr += ";\nnode [shape = circle];\n";
         for (Vertex v : stateGraph) {
             for (Edges e : v.edges) {
-                graphStr += v.key + " -> " + e.dst.key + " [ label = \"" + e.key + "\" ];\n";
+                if (v.start) {
+                    if (e.dst.start)
+                        graphStr += "Start_" + v.key + " -> " + "Start_" +e.dst.key +  " [ label = \"" + e.key + "\" ];\n";
+                    else
+                        graphStr +=  "Start_" +v.key + " -> " + e.dst.key + " [ label = \"" + e.key + "\" ];\n";
+                } else {
+                    if (e.dst.start)
+                        graphStr += v.key + " -> " +"Start_" + e.dst.key +  " [ label = \"" + e.key + "\" ];\n";
+                    else
+                        graphStr += v.key + " -> " + e.dst.key + " [ label = \"" + e.key + "\" ];\n";
+                }
             }
         }
         GraphDrawer gd = new GraphDrawer();
