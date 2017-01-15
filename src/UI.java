@@ -73,7 +73,6 @@ public class UI extends JFrame {
         s = matcher.replaceAll("");
         if (!s.equals("")) {
             size = Integer.parseInt(s);
-
             dispose();
             GetTable getTable=new GetTable();
             getTable.pack();

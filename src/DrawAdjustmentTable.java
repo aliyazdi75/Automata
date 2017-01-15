@@ -15,11 +15,8 @@ import java.awt.event.ActionEvent;
  */
 public class DrawAdjustmentTable extends JFrame {
 
-    private JScrollPane scrollPane;
-    private JTable stateTable;
     private DefaultTableModel model;
-    private TableRowSorter<TableModel> sorter;
-    private JTable headerTable;
+    private JTable stateTable;
 
     public DrawAdjustmentTable() {
 
@@ -30,7 +27,7 @@ public class DrawAdjustmentTable extends JFrame {
 
         stateTable.getColumnModel().getColumn(0).setHeaderValue("Adjustment");
 
-        sorter = new TableRowSorter<>(stateTable.getModel());
+        TableRowSorter<TableModel> sorter = new TableRowSorter<>(stateTable.getModel());
         stateTable.setRowSorter(sorter);
         model = new DefaultTableModel() {
 
@@ -62,7 +59,7 @@ public class DrawAdjustmentTable extends JFrame {
             }
         };
 
-        headerTable = new JTable(model);
+        JTable headerTable = new JTable(model);
         for (int i = 0; i < stateTable.getRowCount(); i++) {
             headerTable.setValueAt(i, i, 0);
         }
@@ -111,29 +108,69 @@ public class DrawAdjustmentTable extends JFrame {
             stateTable.setValueAt(st, i, 0);
         }
 
-        scrollPane = new JScrollPane(stateTable);
+        JScrollPane scrollPane = new JScrollPane(stateTable);
         scrollPane.setRowHeaderView(headerTable);
         stateTable.setPreferredScrollableViewportSize(stateTable.getPreferredSize());
 
-        add(scrollPane,BorderLayout.NORTH);
+        add(scrollPane, BorderLayout.NORTH);
         setBackground(Color.LIGHT_GRAY);
 
-        add(new JButton(new AbstractAction("Check Path") {
+        JPanel p = new JPanel(new GridLayout());
+        add(p, BorderLayout.CENTER);
+
+        JTextField getString = new JTextField();
+        p.add(getString, BorderLayout.WEST);
+        JLabel showCheck = new JLabel();
+        p.add(showCheck, BorderLayout.CENTER);
+
+        p.add(new JButton(new AbstractAction("Check Path") {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                if (checkPath(getString.getText().toCharArray()))
+                    showCheck.setText(" -> TRUE");
+                else
+                    showCheck.setText(" -> FALSE");
 
             }
-        }), BorderLayout.CENTER);
+        }), BorderLayout.EAST);
 
         add(new JButton(new AbstractAction("Again") {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                dispose();
+                UI ui = new UI();
+                ui.pack();
+                ui.setLocationRelativeTo(null);
+                ui.setVisible(true);
             }
         }), BorderLayout.SOUTH);
 
+    }
+
+    private Boolean checkPath(char[] path) {
+
+        Vertex curNode = new Vertex();
+        for (Vertex vertex : GetTable.stateGraph)
+            if (vertex.start) {
+                curNode = vertex;
+                break;
+            }
+
+        for (char c : path) {
+            boolean is = false;
+            for (Edges e : curNode.edges)
+                if (e.key == c) {
+                    curNode = e.dst;
+                    is = true;
+                    break;
+                }
+            if (is)
+                continue;
+            return false;
+        }
+        return curNode.finals;
     }
 
 }

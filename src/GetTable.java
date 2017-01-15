@@ -231,7 +231,9 @@ public class GetTable extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //main jFrame with layout
+                //check select start and finals
                 state();
+                //can select with or not circles
                 drawGraph(false);
                 for (Vertex vertex : stateGraph)
                     findCircles(vertex);
@@ -246,7 +248,7 @@ public class GetTable extends JFrame {
                 drawAdjustmentTable.setVisible(true);
                 //setEditable -> False
                 //Again
-                //
+                //Big Size in any
             }
         }), BorderLayout.SOUTH);
 
