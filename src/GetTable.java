@@ -7,6 +7,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -18,6 +20,8 @@ public class GetTable extends JFrame {
     public static ArrayList<Vertex> stateGraph = new ArrayList<>();
     private JRadioButton[] rdBtn = new JRadioButton[UI.size];
     private JCheckBox[] chkBox = new JCheckBox[UI.size];
+    private JRadioButton selectWOCircle;
+    private JRadioButton selectWCircle;
     private Vertex lastVertex;
     private int lastEdges;
     private JScrollPane scrollPane;
@@ -223,35 +227,92 @@ public class GetTable extends JFrame {
 
         stateTable.setPreferredScrollableViewportSize(stateTable.getPreferredSize());
 
-        add(scrollPane);
+        add(scrollPane, BorderLayout.NORTH);
         setBackground(Color.LIGHT_GRAY);
+
+        JPanel pnlJrd = new JPanel(new FlowLayout());
+        selectWOCircle = new JRadioButton("Graph Without Circles", true);
+        selectWCircle = new JRadioButton("Graph With Circles");
+        ButtonGroup jrdG = new ButtonGroup();
+        jrdG.add(selectWOCircle);
+        jrdG.add(selectWCircle);
+        pnlJrd.add(selectWOCircle, BorderLayout.WEST);
+        pnlJrd.add(selectWCircle, BorderLayout.CENTER);
+        add(pnlJrd, BorderLayout.CENTER);
+
 
         add(new JButton(new AbstractAction("Enter") {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                //main jFrame with layout
-                //check select start and finals
-                state();
-                //can select with or not circles
-                drawGraph(false);
-                for (Vertex vertex : stateGraph)
-                    findCircles(vertex);
-                for (Vertex vertex : stateGraph)
-                    vertex.visited = false;
-                drawGraph(true);
-                //open file
-                dispose();
-                DrawAdjustmentTable drawAdjustmentTable = new DrawAdjustmentTable();
-                drawAdjustmentTable.pack();
-                drawAdjustmentTable.setLocationRelativeTo(null);
-                drawAdjustmentTable.setVisible(true);
-                //setEditable -> False
-                //Again
-                //Big Size in any
+                for (int i = 0; i < rdBtn.length; i++)
+                    if (rdBtn[i].isSelected()) {
+                        for (int j = 0; j < chkBox.length; j++) {
+                            if (chkBox[j].isSelected()) {
+                                makeGraph();
+                                break;
+                            }
+                            else if (j == chkBox.length - 1) {
+                                JOptionPane.showMessageDialog(new JFrame(), "Please select at least one final!"
+                                        , "Error!", JOptionPane.ERROR_MESSAGE);
+                            }
+                        }
+                        break;
+                    } else if (i == rdBtn.length - 1) {
+                        JOptionPane.showMessageDialog(new JFrame(), "Please select a start!"
+                                , "Error!", JOptionPane.ERROR_MESSAGE);
+                    }
+
             }
         }), BorderLayout.SOUTH);
 
+    }
+
+    private void makeGraph() {
+        state();
+        if (selectWCircle.isSelected()) {
+            drawGraph(false);
+            File f = new File("Graph_With_Circles.png");
+            if (Desktop.isDesktopSupported()) {
+                Desktop desktop = Desktop.getDesktop();
+                if (f.exists()) {
+                    try {
+                        desktop.open(f);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+        } else {
+            for (Vertex vertex : stateGraph)
+                if (vertex.start)
+                    findCircles(vertex);
+            for (Vertex vertex : stateGraph)
+                if (!vertex.start)
+                    findCircles(vertex);
+            for (Vertex vertex : stateGraph)
+                vertex.visited = false;
+            drawGraph(true);
+            File f = new File("Graph_Without_Circles.png");
+            if (Desktop.isDesktopSupported()) {
+                Desktop desktop = Desktop.getDesktop();
+                if (f.exists())
+                    try {
+                        desktop.open(f);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+            }
+        }
+        dispose();
+        DrawAdjustmentTable drawAdjustmentTable = new DrawAdjustmentTable();
+        drawAdjustmentTable.pack();
+        drawAdjustmentTable.setLocationRelativeTo(null);
+        drawAdjustmentTable.setVisible(true);
+        //setEditable -> False
+        //Again
+        //Big Size in any
     }
 
     private void state() {
@@ -266,18 +327,13 @@ public class GetTable extends JFrame {
             for (int j = 0; j < UI.size; j++) {
                 Object obj = stateTable.getValueAt(i, j);
                 String st = Objects.toString(obj);
-                st = st.replaceAll(",", "");
                 st = st.toLowerCase();
                 if (st.equals("") || st.equals("null"))
                     continue;
-
-                char[] charEdges = st.toCharArray();
-                for (char c : charEdges) {
-                    Edges newEdge = new Edges();
-                    newEdge.key = c;
-                    newEdge.dst = stateGraph.get(j);
-                    newNode.edges.add(newEdge);
-                }
+                Edges newEdge = new Edges();
+                newEdge.key = st;
+                newEdge.dst = stateGraph.get(j);
+                newNode.edges.add(newEdge);
             }
             JRadioButton button = new JRadioButton();
             button.setSelected(true);
@@ -293,18 +349,16 @@ public class GetTable extends JFrame {
     }
 
     private void findCircles(Vertex vertex) {
-
-        if (vertex.visited) {
-            if (lastVertex.edges.size() > 0) {
-                lastVertex.edges.remove(lastEdges);
-                lastEdges--;
-            }
-        } else {
+        if (!vertex.visited) {
             vertex.visited = true;
-            lastVertex = vertex;
-            for (lastEdges = 0; lastEdges < vertex.edges.size(); lastEdges++) {
-                findCircles(vertex.edges.get(lastEdges).dst);
+            for (int i = 0; i < vertex.edges.size() && vertex.edges.size() > 0; i++) {
+                if (vertex.edges.get(i).dst.visited) {
+                    vertex.edges.remove(i);
+                    i--;
+                } else
+                    findCircles(vertex.edges.get(i).dst);
             }
+            vertex.visited = false;
         }
     }
 
@@ -313,9 +367,9 @@ public class GetTable extends JFrame {
         graphStr += "size=\"8,5\"\n";
         graphStr += "node [shape = doublecircle]; ";
         for (Vertex v : stateGraph) {
-            if (v.finals || v.start)
+            if (v.finals)
                 if (v.start)
-                    graphStr += "Start_"+v.key + " ";
+                    graphStr += "Start_" + v.key + " ";
                 else
                     graphStr += v.key + " ";
         }
@@ -324,12 +378,12 @@ public class GetTable extends JFrame {
             for (Edges e : v.edges) {
                 if (v.start) {
                     if (e.dst.start)
-                        graphStr += "Start_" + v.key + " -> " + "Start_" +e.dst.key +  " [ label = \"" + e.key + "\" ];\n";
+                        graphStr += "Start_" + v.key + " -> " + "Start_" + e.dst.key + " [ label = \"" + e.key + "\" ];\n";
                     else
-                        graphStr +=  "Start_" +v.key + " -> " + e.dst.key + " [ label = \"" + e.key + "\" ];\n";
+                        graphStr += "Start_" + v.key + " -> " + e.dst.key + " [ label = \"" + e.key + "\" ];\n";
                 } else {
                     if (e.dst.start)
-                        graphStr += v.key + " -> " +"Start_" + e.dst.key +  " [ label = \"" + e.key + "\" ];\n";
+                        graphStr += v.key + " -> " + "Start_" + e.dst.key + " [ label = \"" + e.key + "\" ];\n";
                     else
                         graphStr += v.key + " -> " + e.dst.key + " [ label = \"" + e.key + "\" ];\n";
                 }

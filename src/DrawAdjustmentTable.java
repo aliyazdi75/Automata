@@ -17,6 +17,10 @@ public class DrawAdjustmentTable extends JFrame {
 
     private DefaultTableModel model;
     private JTable stateTable;
+    private char[] path;
+    private char[] eChar;
+    private int curChar;
+    private Boolean isPath = false;
 
     public DrawAdjustmentTable() {
 
@@ -103,8 +107,12 @@ public class DrawAdjustmentTable extends JFrame {
 
         for (int i = 0; i < stateTable.getRowCount(); i++) {
             String st = "";
-            for (Edges e : GetTable.stateGraph.get(i).edges)
-                st += "(" + e.dst.key + "," + e.key + ") ";
+            char[] eChar;
+            for (Edges e : GetTable.stateGraph.get(i).edges) {
+                eChar = e.key.replaceAll(",", "").toCharArray();
+                for (char eC : eChar)
+                    st += "(" + e.dst.key + "," + eC + ") ";
+            }
             stateTable.setValueAt(st, i, 0);
         }
 
@@ -127,11 +135,18 @@ public class DrawAdjustmentTable extends JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (checkPath(getString.getText().toCharArray()))
+                isPath=false;
+                curChar=0;
+                path=getString.getText().toLowerCase().toCharArray();
+                for (Vertex vertex : GetTable.stateGraph)
+                    if (vertex.start) {
+                        checkPath(vertex);
+                        break;
+                    }
+                if (isPath)
                     showCheck.setText(" -> TRUE");
                 else
                     showCheck.setText(" -> FALSE");
-
             }
         }), BorderLayout.EAST);
 
@@ -149,7 +164,7 @@ public class DrawAdjustmentTable extends JFrame {
 
     }
 
-    private Boolean checkPath(char[] path) {
+    private Boolean checkath() {
 
         Vertex curNode = new Vertex();
         for (Vertex vertex : GetTable.stateGraph)
@@ -157,20 +172,49 @@ public class DrawAdjustmentTable extends JFrame {
                 curNode = vertex;
                 break;
             }
-
-        for (char c : path) {
+        int c;
+        for (c = 0; c < path.length; c++) {
             boolean is = false;
-            for (Edges e : curNode.edges)
-                if (e.key == c) {
-                    curNode = e.dst;
-                    is = true;
-                    break;
+
+            for (Edges e : curNode.edges) {
+                for (char eC : eChar) {
+                    if (eC == path[c]) {
+                        if (c == path.length - 1) {
+                            curNode = e.dst;
+                            is = true;
+                            break;
+                        } else
+                            c++;
+                    }
                 }
+            }
             if (is)
                 continue;
             return false;
         }
         return curNode.finals;
+    }
+
+    private void checkPath(Vertex curNode) {
+        for (Edges edges : curNode.edges) {
+            eChar = edges.key.replaceAll(",", "").toCharArray();
+            for (int c = 0; c < eChar.length; c++) {
+                if (eChar[c] == path[curChar]) {
+                    curChar++;
+                    if (curChar == path.length) {
+                        if (curNode.finals) {
+                            isPath = true;
+                            break;
+                        }
+                    }
+                    if (c == eChar.length - 1)
+                        checkPath(edges.dst);
+                } else
+                    break;
+            }
+            if(isPath)
+                break;
+        }
     }
 
 }

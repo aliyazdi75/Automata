@@ -18,34 +18,32 @@ public class UI extends JFrame {
     public UI() {
 
         super("Automata");
-        setLayout(null);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setResizable(false);
-        JPanel pnlCmpt = new JPanel(null);
+        JPanel pnlCmpt = new JPanel(new GridLayout());
 
         Font font1 = new Font("", Font.PLAIN, 30);
         JLabel label1 = new JLabel("Please enter state size:");
         label1.setFont(font1);
-        label1.setBounds(0, 0, 400, 80);
-        pnlCmpt.add(label1);
+       //label1.setBounds(0, 0, 400, 80);
+        add(label1, BorderLayout.NORTH);
 
-        txtSize = new JTextField(100);
+        txtSize = new JTextField();
         font1 = new Font("", Font.LAYOUT_LEFT_TO_RIGHT, 35);
         txtSize.setFont(font1);
-        txtSize.setBounds(0, 100, 100, 50);
-        pnlCmpt.add(txtSize);
+        //txtSize.setBounds(0, 100, 100, 50);
+        pnlCmpt.add(txtSize, BorderLayout.WEST);
 
         btnEnter = new JButton("Enter");
-        btnEnter.setSize(85, 50);
+        //btnEnter.setSize(85, 50);
         font1 = new Font("", Font.PLAIN, 30);
         btnEnter.setFont(font1);
-        btnEnter.setBounds(130, 100, 180, 50);
-        pnlCmpt.add(btnEnter);
+        //btnEnter.setBounds(130, 100, 180, 50);
+        pnlCmpt.add(btnEnter, BorderLayout.EAST);
 
-        pnlCmpt.setBounds(30, 30, 330, 250);
-        add(pnlCmpt);
+       // pnlCmpt.setBounds(30, 30, 330, 250);
+        add(pnlCmpt, BorderLayout.CENTER);
         setBackground(Color.LIGHT_GRAY);
-        setSize(380, 300);
+        //setSize(380, 300);
 
         btnEnter.addActionListener(new AbstractAction() {
             @Override
